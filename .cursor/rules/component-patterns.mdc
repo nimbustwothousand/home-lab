@@ -1,0 +1,50 @@
+---
+description: React and Material UI component patterns
+globs: apps/web/**/*.tsx
+alwaysApply: false
+---
+
+# React Component Patterns
+
+## Component Structure
+
+- Use functional components with TypeScript
+- Define props interface above component
+- Export component as named export
+
+```tsx
+interface TaskCardProps {
+  task: Task;
+  onComplete: (id: string) => void;
+}
+
+export function TaskCard({ task, onComplete }: TaskCardProps) {
+  // ...
+}
+```
+
+## Material UI Styling
+
+- Use `sx` prop for one-off styles
+- Use theme spacing: `sx={{ p: 2, mb: 1 }}` (not px values)
+- Destructure from theme when needed: `sx={{ bgcolor: 'background.paper' }}`
+
+```tsx
+// ✅ GOOD
+<Card sx={{ p: 2, mb: 1, borderRadius: 2 }}>
+
+// ❌ BAD - avoid inline px values
+<Card sx={{ padding: '16px', marginBottom: '8px' }}>
+```
+
+## State Management
+
+- Use `useState` for local component state
+- Lift state up for shared data
+- Keep API calls in parent components or custom hooks
+
+## Custom Hooks
+
+- Prefix with `use` (e.g., `useTasks`, `useWeekNavigation`)
+- Place in `hooks/` directory
+- Return object with clear property names
