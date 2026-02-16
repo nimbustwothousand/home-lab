@@ -8,12 +8,13 @@ alwaysApply: false
 
 ## Route structure
 
-- Route files **only** register handlers and delegate to controllers (or directly to services only when there is no controller layer). Route handlers must not contain business logic or database access.
+- Route files live under `routes/` and are named by **feature** (e.g. `routes/auth.ts`, `routes/task.ts`). They only register handlers and delegate to controllers (or directly to services only when there is no controller layer). Route handlers must not contain business logic or database access.
 - Keep route modules thin: parse/validate input, call controller, send response. No `prisma` imports in route files.
 
 ## Controller / service separation
 
 - **Flow**: Routes → Controllers → Services. Services hold business logic and are the only layer that uses `prisma` (from `@home-lab/db`).
+- **File naming**: Use the same feature name in each layer: `controllers/auth.ts`, `services/auth.ts`, `routes/auth.ts` (see coding-standards).
 - **Controllers**: Orchestrate request/response: call validation, call services, map results to HTTP status and JSON. No direct database access.
 - **Services**: Contain domain and data-access logic; receive and return typed data. May import `prisma` from `@home-lab/db` or receive it via dependency injection.
 - **No direct `prisma` usage in route or controller files.** Only the service (or a dedicated repository) layer may use the database client.

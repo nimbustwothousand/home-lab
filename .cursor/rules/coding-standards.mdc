@@ -8,13 +8,14 @@ alwaysApply: false
 
 ## File naming
 
-- **Kebab-case** for non-component files: e.g. `user-service.ts`, `task-router.ts`, `auth-middleware.ts`.
+- **Kebab-case** for non-component files: e.g. `auth.ts`, `task.ts`, `auth-middleware.ts`.
+- **apps/api** (per-feature): Use the **feature name** as the filename within each layer. One feature = one name across layers: `services/auth.ts`, `controllers/auth.ts`, `routes/auth.ts`. For a new feature (e.g. tasks), add `services/task.ts`, `controllers/task.ts`, `routes/task.ts`. Avoid redundant suffixes like `auth-service.ts` or `auth-router.ts`.
 - **PascalCase** for React components: e.g. `TaskList.tsx`, `LoginForm.tsx`.
 - Use `.ts` for TypeScript without JSX, `.tsx` for files containing JSX.
 
 ## Folder structure
 
-- **apps/api**: Group by layer or feature. Use directories such as `routes/`, `controllers/`, `services/`, `middleware/`. Avoid deep nesting without a clear reason.
+- **apps/api**: Group by layer. Use directories such as `routes/`, `controllers/`, `services/`, `middleware/`. Each layer uses the same feature filename (e.g. `auth.ts`) per feature. Avoid deep nesting without a clear reason.
 - **apps/web**: Group by feature or by type (e.g. `components/`, `pages/`, `hooks/`). Same principle: flat enough to navigate, nested only when it clarifies structure.
 - **packages**: One package per concern (db, types, etc.). Inside a package, use a small set of top-level folders (e.g. `src/`, `prisma/`) and avoid unnecessary depth.
 
