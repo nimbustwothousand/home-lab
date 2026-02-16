@@ -1,0 +1,8 @@
+{
+  "name": "home-services",
+  "private": true,
+  "scripts": {
+    "rebuild-db": "cd packages/db && pnpx prisma generate && cd ../.. && pnpm --filter @home-lab/db build"
+  },
+  "packageManager": "pnpm@10.29.2"
+}

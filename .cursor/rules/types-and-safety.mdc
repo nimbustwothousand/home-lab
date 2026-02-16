@@ -1,0 +1,31 @@
+---
+description: Strict TypeScript, shared types, and validation strategy
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Types and safety
+
+## Strict TypeScript
+
+- Keep `strict: true` in tsconfig (and any extends). Do not disable strict options to satisfy quick fixes.
+- **No `any`**: Do not use the `any` type. Use `unknown` and narrow with type guards, or define proper types.
+- **No `@ts-ignore`** without a one-line comment justifying the exception (e.g. third-party typings bug). Prefer `@ts-expect-error` with explanation when suppression is unavoidable.
+- Prefer `unknown` for external or unvalidated data; narrow before use.
+
+## Shared types between API and frontend
+
+- API and frontend **must** share types for domain objects, DTOs, and API contracts. Do not duplicate type definitions for the same concept.
+- Shared types live in a **package under `packages/`** (e.g. `packages/types` or `packages/shared`). Both `apps/api` and `apps/web` (and other apps) import from that package.
+- Do not define the same interface or type in both api and web; extract to the shared package and import.
+
+## Validation strategy
+
+- **Never trust `request.body` or any external input** without runtime validation. Treat all request body, query, and params as untyped until validated.
+- Use a validation layer (e.g. Zod, Valibot, or similar) to parse and validate. Use the **output type** of the validator in business logic, not raw `req.body`.
+- Validation must run before controller or service logic; invalid input must result in a 4xx response with a clear message, not a 500 or undefined behaviour.
+- Do not use unvalidated body in business logic; do not type `req.body as SomeType` without prior validation.
+
+## Explicit return types
+
+- Exported functions must have explicit return types. See also `coding-standards.mdc`. Exception: React function components may rely on inference if the project standard allows it.

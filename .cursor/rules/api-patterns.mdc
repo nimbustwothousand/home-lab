@@ -1,0 +1,38 @@
+---
+description: Express route structure, controller/service separation, and API conventions
+globs: "apps/api/**/*.ts"
+alwaysApply: false
+---
+
+# API patterns
+
+## Route structure
+
+- Route files **only** register handlers and delegate to controllers (or directly to services only when there is no controller layer). Route handlers must not contain business logic or database access.
+- Keep route modules thin: parse/validate input, call controller, send response. No `prisma` imports in route files.
+
+## Controller / service separation
+
+- **Flow**: Routes → Controllers → Services. Services hold business logic and are the only layer that uses `prisma` (from `@home-lab/db`).
+- **Controllers**: Orchestrate request/response: call validation, call services, map results to HTTP status and JSON. No direct database access.
+- **Services**: Contain domain and data-access logic; receive and return typed data. May import `prisma` from `@home-lab/db` or receive it via dependency injection.
+- **No direct `prisma` usage in route or controller files.** Only the service (or a dedicated repository) layer may use the database client.
+
+## Async error handling
+
+- Use a **central error-handling middleware** (e.g. an async wrapper that catches promise rejections and forwards to an error middleware). Do not leave async route handlers without a catch or forward to this middleware.
+- Do not swallow errors in route handlers; propagate to the error middleware so responses and logging are consistent.
+- In development, error middleware may expose details; in production, return generic messages and log full errors server-side.
+
+## Response format conventions
+
+- **Success**: Use a consistent JSON shape, e.g. `{ data: T }` for a single resource or list. Use 2xx status codes (200 OK, 201 Created, 204 No Content as appropriate).
+- **Client error**: Use a consistent shape, e.g. `{ error: { message: string, code?: string } }`. Use 4xx status codes (400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Unprocessable Entity for validation failures).
+- **Server error**: Use 5xx (e.g. 500) for unexpected failures; do not leak internal details in the response body.
+- Do not mix success and error shapes (e.g. avoid success with an `error` field); keep success and error payloads clearly distinct.
+
+## Status code conventions
+
+- **2xx**: Success (200, 201, 204 as appropriate).
+- **4xx**: Client fault (400 invalid input, 401 unauthenticated, 403 forbidden, 404 not found, 422 validation failure).
+- **5xx**: Server fault (500 internal error). Use for unhandled exceptions and infrastructure failures.

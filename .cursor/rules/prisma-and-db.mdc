@@ -1,0 +1,30 @@
+---
+description: Prisma configuration, custom schema, single client, and migration workflow
+globs: "packages/db/**/*.ts,packages/db/**/*.prisma,apps/api/**/*.ts"
+alwaysApply: false
+---
+
+# Prisma and database
+
+## Prisma configuration
+
+- Schema file: `packages/db/prisma/schema.prisma`.
+- Generator output: `../src/generated/prisma` (client is generated inside the package, not in node_modules).
+- Datasource: PostgreSQL with `schemas = ["home_lab"]`. The database uses a **custom PostgreSQL schema** (not `public`).
+- Migrations directory: `packages/db/prisma/migrations`. Run migrations from the `packages/db` directory.
+
+## Custom schema and table naming
+
+- **All models must use** `@@schema("home_lab")` so tables and objects live in the `home_lab` schema.
+- **Use `@@map("lowercase_name")`** so table names in PostgreSQL are lowercase (e.g. `@@map("user")`, `@@map("meal_plan")`). Prisma model names may remain PascalCase.
+
+## Single PrismaClient instance
+
+- The repository has **exactly one** PrismaClient instance. It is created and exported from `packages/db/src/index.ts` (e.g. `export const prisma = new PrismaClient(...)`).
+- Apps and other packages **must** import `prisma` from `@home-lab/db`. They **must not** instantiate `new PrismaClient()` or import from `packages/db/src/generated/prisma` directly.
+- The db package may use the Neon adapter or other configuration internally; consumers only use the exported `prisma` instance.
+
+## Migration workflow
+
+- Run migrations from **packages/db**: e.g. `pnpm exec prisma migrate dev` (or `npx prisma migrate dev`) with working directory `packages/db`.
+- After changing the schema, run the root script **rebuild-db** (or equivalent) to regenerate the client and build the db package: `pnpm rebuild-db` from the repo root. This ensures `packages/db/dist` and generated types are up to date before other packages or apps use them.

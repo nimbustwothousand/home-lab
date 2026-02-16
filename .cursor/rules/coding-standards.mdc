@@ -1,0 +1,34 @@
+---
+description: File naming, folder structure, imports, and export conventions
+globs: "**/*.ts,**/*.tsx"
+alwaysApply: false
+---
+
+# Coding standards
+
+## File naming
+
+- **Kebab-case** for non-component files: e.g. `user-service.ts`, `task-router.ts`, `auth-middleware.ts`.
+- **PascalCase** for React components: e.g. `TaskList.tsx`, `LoginForm.tsx`.
+- Use `.ts` for TypeScript without JSX, `.tsx` for files containing JSX.
+
+## Folder structure
+
+- **apps/api**: Group by layer or feature. Use directories such as `routes/`, `controllers/`, `services/`, `middleware/`. Avoid deep nesting without a clear reason.
+- **apps/web**: Group by feature or by type (e.g. `components/`, `pages/`, `hooks/`). Same principle: flat enough to navigate, nested only when it clarifies structure.
+- **packages**: One package per concern (db, types, etc.). Inside a package, use a small set of top-level folders (e.g. `src/`, `prisma/`) and avoid unnecessary depth.
+
+## Imports
+
+- Prefer **named imports** over default imports for non-React modules.
+- Use **workspace package names** for packages: `import { prisma } from "@home-lab/db"`. Use **relative paths** for files within the same app or package.
+- **No default exports** for services, utilities, or non-React modules. Use named exports only so that refactors and IDE usage stay consistent. Exception: React components and app entry points (e.g. `App.tsx`, `main.tsx`) may use default export if the project standard allows.
+
+## Exported functions
+
+- **Exported functions must have explicit return types.** Do not rely on inference for public API. Example: `export function getUserId(req: Request): string { ... }` not `export function getUserId(req: Request) { ... }`.
+- Exception: React function components may omit explicit return type (e.g. `function TaskList(): JSX.Element` or inferred) if the project agrees.
+
+## File scope
+
+- One logical unit per file where practical (one main export: one service, one router, one component). Avoid large files that mix many unrelated exports; split by responsibility.

@@ -1,0 +1,29 @@
+---
+description: High-level repository purpose, goals, and design philosophy
+alwaysApply: true
+---
+
+# Repository purpose
+
+## What this repository is
+
+- Personal monorepo hosting multiple personal-use applications.
+- Examples: personal task manager, meal planner, and other future apps.
+- Single codebase for backend, frontend, and shared infrastructure.
+
+## Long-term goals
+
+- **Strict type-safety end-to-end**: From database to API to frontend, types must flow without gaps.
+- **Clean separation of concerns**: Routes, controllers, services, and data access are distinct layers.
+- **No implicit any types**: TypeScript must be strict; all types explicit or correctly inferred.
+- **Predictable API structure**: Consistent response shapes, status codes, and error handling.
+- **Single PrismaClient instance**: One database client, created and exported from the db package only.
+- **No business logic inside route files**: Routes delegate to controllers/services; they do not contain domain logic or direct database access.
+- **Future maintainability over short-term speed**: Prefer clear, structured code over quick inline solutions.
+
+## Design philosophy
+
+- **Clarity over cleverness**: Readable, obvious code wins over clever or terse patterns.
+- **Type-safety first**: Types drive design; avoid escape hatches (any, type assertions) unless justified.
+- **Explicit over implicit**: Validation, return types, and dependencies should be explicit.
+- **Single source of truth**: Shared types and configuration live in defined places; no duplication of domain concepts across apps.

@@ -1,0 +1,64 @@
+---
+description: Monorepo structure, package responsibilities, and dependency rules
+alwaysApply: true
+---
+
+# Architecture
+
+## Monorepo layout
+
+- **apps/** — Deployable applications.
+  - **apps/api** — Express backend serving all future apps (task manager, meal planner, etc.).
+  - **apps/web** — React frontend: home screen, login, and navigation to other apps.
+  - Future apps (e.g. task-manager, meal-planner) will live under `apps/` as separate workspaces.
+- **packages/** — Shared libraries; no standalone deployment.
+  - **packages/db** — Prisma schema, migrations, generated client, and single `prisma` export.
+  - Other shared packages (e.g. types, shared utils) will live under `packages/` as needed.
+
+## Package and app responsibilities
+
+| Location        | Responsibility |
+|----------------|----------------|
+| **packages/db** | Prisma schema, migrations, generated client output, single PrismaClient instance. Source of truth for database shape and connection. |
+| **apps/api**    | Express server, session, auth, and API routes for all apps. No direct Prisma instantiation; uses `@home-lab/db`. |
+| **apps/web**    | React app: home screen, login, and navigation to other apps. Consumes API and shared types. |
+| **Future apps** | Each under `apps/`; may depend on `@home-lab/db` and shared packages; no app-to-app dependencies. |
+
+## Dependency rules
+
+- Apps **may** depend on packages (e.g. `apps/api` depends on `@home-lab/db`).
+- Packages **must not** depend on apps.
+- Apps **must not** depend on other apps; shared behaviour goes into packages.
+- Workspace packages are referenced by name (e.g. `@home-lab/db`) with `workspace:*` in package.json.
+
+## Prisma generation and consumption
+
+- Prisma client is generated **into** `packages/db/src/generated/prisma` (see generator `output` in schema).
+- **Consume only via** the db package: `import { prisma } from "@home-lab/db"`. Do not import from `packages/db/src/generated/prisma` from outside the db package.
+- Re-export types from `@home-lab/db` as needed so apps and other packages use a single entry point.
+
+## Environment variables
+
+- **packages/db**: Loads `packages/db/.env` for `DATABASE_URL` (and any Prisma/Neon-specific vars). Used when running migrations or when the db package initialises the client.
+- **apps/api**, **apps/web**, and other apps: May each have their own `.env` (e.g. `PORT`, `SESSION_SECRET`, API base URL). App env is the source of truth for that app.
+- Root `.env` is optional; prefer package- or app-level `.env` so each boundary has clear ownership.
+
+## Diagram
+
+```mermaid
+flowchart LR
+  subgraph apps [Apps]
+    api[apps/api]
+    web[apps/web]
+    future[Future apps]
+  end
+  subgraph packages [Packages]
+    db[packages/db]
+    shared[Future shared]
+  end
+  api --> db
+  web --> shared
+  api --> shared
+  future --> db
+  future --> shared
+```
